@@ -1,5 +1,7 @@
 build:
-CGO_ENABLED=0 GOOS=windows GOARCH=386 go build -o process_excel
+./build.sh
+or
+CGO_ENABLED=0 GOOS=windows GOARCH=386 go build -o process_excel.exe
 
 使用:
 将所有数据放在同一个文件夹,然后执行程序process_excel,处理后的数据在:./处理后文件夹
