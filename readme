@@ -4,4 +4,15 @@ or
 CGO_ENABLED=0 GOOS=windows GOARCH=386 go build -o process_excel.exe
 
 使用:
-将所有数据放在同一个文件夹,然后执行程序process_excel,处理后的数据在:./处理后文件夹
+将所有原数据放在同一个文件夹,然后执行程序process_excel,处理后的数据在:./处理后文件夹
+
+main_process_excel.go
+change_row_to_col.go.bak(这两个是同一个代码)
+	是将行数据转为列数据的程序
+
+
+change_col_to_row.go.bak:
+	是将列数据转为行数据的程序
+
+
+要生成相应的数据时，将.bak文件重命名成.go文件，然后执行build.sh即可

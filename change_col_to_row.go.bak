@@ -1,0 +1,105 @@
+/*
+	将列数据转为行数据
+*/
+package main
+
+import (
+	"container/list"
+	"fmt"
+	"os"
+	"path/filepath"
+	"strconv"
+	"strings"
+
+	"github.com/tealeg/xlsx"
+)
+
+func main() {
+
+	files := []string{}
+	path, _ := os.Getwd()
+	filepath.Walk(path, func(path string, f os.FileInfo, err error) error {
+		if f == nil {
+			return err
+		}
+		if f.IsDir() {
+			return nil
+		}
+		name := f.Name()
+		listDir := list.New()
+		listDir.PushBack(name)
+		files = append(files, name)
+		return nil
+	})
+
+	_, direrr := os.Stat("处理后文件夹")
+	if direrr != nil {
+		fmt.Printf("文件夹不存在\n")
+		os.Mkdir("./处理后文件夹", 0777)
+	}
+
+	for i := 0; i < len(files); i++ {
+		//name := "江苏高价数据(1735-1795).xlsx"
+		name := files[i]
+		//查找xlsx文件
+		if strings.Contains(name, "xlsx") == false {
+			continue
+		}
+		xlFile, err := xlsx.OpenFile(name)
+		if err != nil {
+			continue
+		}
+		newFile := xlsx.NewFile()
+
+		for _, sheet := range xlFile.Sheets {
+			fmt.Printf("sheet name:%s\n", sheet.Name)
+			if len(sheet.Rows) < 3 {
+				fmt.Printf("%s 是空白表格\n", sheet.Name)
+				continue
+			}
+			if len(sheet.Cols) > 2 {
+				fmt.Printf("%s 是不符合格式的表格\n", sheet.Name)
+				continue
+			}
+			newSheet, _ := newFile.AddSheet(sheet.Name + "处理后")
+
+			//第一行直接写固定
+			newRow1 := newSheet.AddRow()
+			newCell1 := newRow1.AddCell()
+			newCell1.Value = "年代" //_ = //sheet.Rows[0].Cells[0].String()
+			for i := 1; i < 13; i++ {
+				tempCell := newRow1.AddCell()
+				tempCell.SetInt(i)
+			}
+
+			if (len(sheet.Rows)-1)%12 != 0 {
+				fmt.Printf("%s 的数据行数不是12个月的整数倍，数据错误,请检查数据\n", sheet.Name)
+				continue
+			}
+			fmt.Printf("%s 数据总行数[%d](除去表头1行),总列数[%d]\n", sheet.Name, len(sheet.Rows)-1, len(sheet.Cols))
+
+			for i := 1; i < len(sheet.Rows)-1; {
+				innerRow := newSheet.AddRow()
+				yearMonth, _ := sheet.Rows[i].Cells[0].String()
+				year := yearMonth[0:4]
+				innerCellYear := innerRow.AddCell()
+				yearInt, _ := strconv.Atoi(year)
+				//设置年份
+				innerCellYear.SetInt(yearInt)
+				//读取12行数据
+				for j := 0; j < 12; j++ {
+					tempCell := innerRow.AddCell()
+					dataStr, _ := sheet.Rows[i+j].Cells[1].String()
+					dataInt, _ := strconv.Atoi(dataStr)
+					if dataInt != 0 {
+						tempCell.SetInt(dataInt)
+
+					}
+				}
+				i += 12
+
+			}
+			newFile.Save("./处理后文件夹/处理后" + name)
+		}
+	}
+}
