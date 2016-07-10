@@ -66,19 +66,24 @@ func main() {
 			//第一行直接写固定
 			newRow1 := newSheet.AddRow()
 			newCell1 := newRow1.AddCell()
-			newCell1.Value = "年代" //_ = //sheet.Rows[0].Cells[0].String()
+			newCell1.Value, _ = sheet.Rows[0].Cells[0].String()
+
+			//第二行也固定
+			newRow2 := newSheet.AddRow()
+			newRow2Cell1 := newRow2.AddCell()
+			newRow2Cell1.Value = "年代" //_ = //sheet.Rows[0].Cells[0].String()
 			for i := 1; i < 13; i++ {
-				tempCell := newRow1.AddCell()
+				tempCell := newRow2.AddCell()
 				tempCell.SetInt(i)
 			}
 
-			if (len(sheet.Rows)-1)%12 != 0 {
+			if (len(sheet.Rows)-2)%12 != 0 {
 				fmt.Printf("%s 的数据行数不是12个月的整数倍，数据错误,请检查数据\n", sheet.Name)
 				continue
 			}
-			fmt.Printf("%s 数据总行数[%d](除去表头1行),总列数[%d]\n", sheet.Name, len(sheet.Rows)-1, len(sheet.Cols))
+			fmt.Printf("%s 数据总行数[%d](除去表头2行),总列数[%d]\n", sheet.Name, len(sheet.Rows)-2, len(sheet.Cols))
 
-			for i := 1; i < len(sheet.Rows)-1; {
+			for i := 2; i < len(sheet.Rows)-1; {
 				innerRow := newSheet.AddRow()
 				yearMonth, _ := sheet.Rows[i].Cells[0].String()
 				year := yearMonth[0:4]
