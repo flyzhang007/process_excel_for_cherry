@@ -78,7 +78,7 @@ func main() {
 			}
 
 			if (len(sheet.Rows)-2)%12 != 0 {
-				fmt.Printf("%s 的数据行数不是12个月的整数倍，数据错误,请检查数据\n", sheet.Name)
+				fmt.Printf("%s 的数据行数[%d]不是12个月的整数倍，数据错误,请检查数据\n", sheet.Name, len(sheet.Rows)-2)
 				continue
 			}
 			fmt.Printf("%s 数据总行数[%d](除去表头2行),总列数[%d]\n", sheet.Name, len(sheet.Rows)-2, len(sheet.Cols))
@@ -86,6 +86,11 @@ func main() {
 			for i := 2; i < len(sheet.Rows)-1; {
 				innerRow := newSheet.AddRow()
 				yearMonth, _ := sheet.Rows[i].Cells[0].String()
+				fmt.Printf("yearMonth:%s\n", yearMonth)
+				if yearMonth == "" {
+					//处理空行
+					break
+				}
 				year := yearMonth[0:4]
 				innerCellYear := innerRow.AddCell()
 				yearInt, _ := strconv.Atoi(year)
@@ -94,12 +99,21 @@ func main() {
 				//读取12行数据
 				for j := 0; j < 12; j++ {
 					tempCell := innerRow.AddCell()
-					dataStr, _ := sheet.Rows[i+j].Cells[1].String()
-					dataInt, _ := strconv.Atoi(dataStr)
-					if dataInt != 0 {
-						tempCell.SetInt(dataInt)
-
+					if len(sheet.Rows[i+j].Cells) < 2 {
+						//处理只有年份没有数据的行
+						continue
 					}
+					dataStr, _ := sheet.Rows[i+j].Cells[1].String()
+					if strings.Contains(dataStr, ".") { //小数
+						dataF, _ := strconv.ParseFloat(dataStr, 64)
+						tempCell.SetFloat(dataF)
+					} else { //整数
+						dataI, _ := strconv.Atoi(dataStr)
+						if dataI != 0 {
+							tempCell.SetInt(dataI)
+						}
+					}
+
 				}
 				i += 12
 
