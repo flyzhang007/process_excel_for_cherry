@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/tealeg/xlsx"
 )
@@ -85,10 +86,15 @@ func main() {
 
 			for i := 2; i < len(sheet.Rows)-1; {
 				innerRow := newSheet.AddRow()
+				if len(sheet.Rows[i].Cells) < 2 {
+					fmt.Printf("%s的数据处理完毕,i:%d,len of cells:%d", sheet.Name, i, len(sheet.Rows[i].Cells))
+					break
+				}
 				yearMonth, _ := sheet.Rows[i].Cells[0].String()
-				fmt.Printf("yearMonth:%s\n", yearMonth)
+				fmt.Printf("yearMonth:%s,i:%d\n", yearMonth, i)
 				if yearMonth == "" {
 					//处理空行
+					fmt.Printf("%s 的第%d 行年份和月份为空", sheet.Name, i)
 					break
 				}
 				year := yearMonth[0:4]
@@ -121,4 +127,5 @@ func main() {
 			newFile.Save("./处理后文件夹/处理后" + name)
 		}
 	}
+	time.Sleep(10 * time.Second)
 }
