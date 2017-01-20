@@ -16,3 +16,5 @@ change_col_to_row.go.bak:
 
 
 要生成相应的数据时，将.bak文件重命名成.go文件，然后执行build.sh即可
+
+---test
